@@ -10,7 +10,7 @@ import (
 
 var maxNonce = math.MaxInt64
 
-const targetBits = 24
+const targetBits = 24 // prefix of hash: 000000 (6 times of 0)
 
 type PoW struct {
 	block  *Block
