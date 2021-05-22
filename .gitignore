@@ -14,3 +14,5 @@
 *.out
 
 
+# blockchain db file
+*.db
