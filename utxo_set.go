@@ -15,7 +15,7 @@ type UTXOSet struct {
 }
 
 // Reindex rebuilds the UTXO set
-func (u UTXOSet) Reindex(bc *Blockchain) {
+func (u UTXOSet) Reindex() {
 	db := u.Blockchain.db
 
 	err := db.Update(func(tx *bolt.Tx) error {
