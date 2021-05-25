@@ -16,4 +16,4 @@
 
 # blockchain db file
 *.db
-wallet.dat
+*.dat
