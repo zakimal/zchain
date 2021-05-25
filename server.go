@@ -213,9 +213,7 @@ func handleBlock(request []byte, bc *Blockchain) {
 	fmt.Println("Recevied a new block!")
 	bc.AddBlock(block)
 	fmt.Printf("Added block %x\n", block.Hash)
-	fmt.Printf("Added block %d\n", block.Height)
 
-	fmt.Println(blocksInTransit)
 	if len(blocksInTransit) > 0 {
 		blockHash := blocksInTransit[0]
 		sendGetData(payload.AddrFrom, "block", blockHash)
@@ -233,6 +231,9 @@ func handleInv(request []byte, bc *Blockchain) {
 	err := dec.Decode(&payload)
 	if err != nil {
 		log.Panic(err)
+	} else {
+		UTXOSet := UTXOSet{bc}
+		UTXOSet.Reindex()
 	}
 
 	fmt.Printf("Recevied inventory with %d %s\n", len(payload.Items), payload.Type)
@@ -328,9 +329,11 @@ func handleTx(request []byte, bc *Blockchain) {
 		}
 	} else {
 		if len(mempool) >= 2 && len(miningAddress) > 0 {
+		MineTransactions:
 			var txs []*Transaction
 
-			for _, tx := range mempool {
+			for id := range mempool {
+				tx := mempool[id]
 				if bc.VerifyTransaction(&tx) {
 					txs = append(txs, &tx)
 				}
@@ -345,7 +348,7 @@ func handleTx(request []byte, bc *Blockchain) {
 			txs = append(txs, cbTx)
 			newBlock := bc.MineBlock(txs)
 			UTXOSet := UTXOSet{bc}
-			UTXOSet.Update(newBlock)
+			UTXOSet.Reindex()
 
 			fmt.Println("New block is mined!")
 
@@ -360,6 +363,9 @@ func handleTx(request []byte, bc *Blockchain) {
 				}
 			}
 
+			if len(mempool) > 0 {
+				goto MineTransactions
+			}
 		}
 	}
 }
